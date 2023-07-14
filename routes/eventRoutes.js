@@ -3,7 +3,7 @@ const router = express.Router();
 
 const {auth, isEmployee} = require('../middleware/auth');
 
-const { createNewEvent, getAllEvents, deleteEvent, getAllCommonEvents, getAllSpecialEvents, getOverallEventsData, createEventOrder, getAllEventOrdersOfCustomer } = require('../controllers/eventControllers');
+const { createNewEvent, getAllEvents, deleteEvent, getAllCommonEvents, getAllSpecialEvents, getOverallEventsData, createEventOrder, getAllEventOrdersOfCustomer, getAllEventOrders } = require('../controllers/eventControllers');
 
 router.use(auth);
 
@@ -12,10 +12,11 @@ router.route('/')
     .get(getAllEvents) // get all events
 
 router.route('/order')
+    .get(getAllEventOrders) // get all event orders
     .post(createEventOrder) // create a new order
 
 router.route('/order/customer')
-    .get(getAllEventOrdersOfCustomer);
+    .get(getAllEventOrdersOfCustomer); // get all event orders of a customer
 
 router.route('/common')
     .get(getAllCommonEvents) // get all common events

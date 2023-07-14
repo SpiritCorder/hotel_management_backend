@@ -228,7 +228,7 @@ const getAllOrdersOfACustomer = async (req, res, next) => {
     try {
         const [result] = await db.query("SELECT * FROM food_order WHERE customerId=?", [customerId]);
 
-        console.log(result);
+        
 
         res.status(200).json({message: 'Success', orders: result});
 
@@ -243,6 +243,40 @@ const getAllFoodOrders = async (req, res, next) => {
         const [result] = await db.query("SELECT * FROM food_order");
 
         res.status(200).json({message: 'Success', orders: result});
+    } catch (err) {
+        next(err);
+    }
+}
+
+const getSingleOrderDetails = async (req, res, next) => {
+    const orderId = req.params.id;
+    
+    try {
+        const [result] = await db.query("SELECT * FROM food_order WHERE id=?", [+orderId]);
+
+        const [orderItems] = await db.query("SELECT * FROM food_order_item WHERE orderId=?", [+orderId]);
+
+        const order = {
+            ...result[0],
+            orderItems,
+        }
+
+        if(req.user.role !== 'Customer') {
+            // populate customer details
+            const [customerDetails] = await db.query("SELECT * FROM customer WHERE id=?", [+result[0].customerId]);
+            order.customerDetails = {
+                id: customerDetails[0].id,
+                username: customerDetails[0].username,
+                email: customerDetails[0].email,
+                phone: customerDetails[0].phone,
+                name: `${customerDetails[0].firstName} ${customerDetails[0].lastName}`,
+                avatar: customerDetails[0].avatar
+            }
+        }
+
+        res.status(200).json({message: 'Success', order});
+
+
     } catch (err) {
         next(err);
     }
@@ -273,6 +307,7 @@ module.exports = {
     createNewOrder,
     getAllOrdersOfACustomer,
     getAllFoodOrders,
+    getSingleOrderDetails,
 
     getPopularCategories
 }

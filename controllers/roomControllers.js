@@ -292,15 +292,15 @@ const getMonthlyBookingsReport = async (req, res, next) => {
         const [result] = await db.query("SELECT MONTHNAME(checkInDate) AS month_name, MONTH(checkInDate) AS month, COUNT(*) AS total_bookings, SUM(totalPrice) AS revenue FROM booking GROUP BY MONTH(checkInDate)");
     
         let months = [
-            {num: 1, name: 'January'},
-            {num: 2, name: 'February'},
+            {num: 1, name: 'Jan'},
+            {num: 2, name: 'Feb'},
             {num: 3, name: 'March'},
             {num: 4, name: 'April'},
             {num: 5, name: 'May'},
             {num: 6, name: 'June'},
             {num: 7, name: 'July'},
             {num: 8, name: 'Auguest'},
-            {num: 9, name: 'September'},
+            {num: 9, name: 'Sep'},
             {num: 10, name: 'October'},
             {num: 11, name: 'November'},
             {num: 12, name: 'December'},

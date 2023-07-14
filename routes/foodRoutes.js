@@ -5,7 +5,7 @@ const {auth, isEmployee} = require('../middleware/auth');
 
 router.use(auth);
 
-const {createNewMenu, getAllMenus, deleteMenu, getSingleMenu, updateSingleMeal, getSingleMenuUser, createNewOrder, getPopularCategories, getAllOrdersOfACustomer, getAllFoodOrders} = require('../controllers/foodControllers');
+const {createNewMenu, getAllMenus, deleteMenu, getSingleMenu, updateSingleMeal, getSingleMenuUser, createNewOrder, getPopularCategories, getAllOrdersOfACustomer, getAllFoodOrders, getSingleOrderDetails} = require('../controllers/foodControllers');
 
 router.route('/')
     .get(getAllMenus)
@@ -14,6 +14,9 @@ router.route('/')
 router.route('/order')
     .get(isEmployee, getAllFoodOrders)
     .post(createNewOrder) // place a new food order
+
+router.route('/order/single/:id')
+    .get(getSingleOrderDetails) // get more details about a single order
 
 router.route('/order/:customerId')
     .get(getAllOrdersOfACustomer) // get all food orders of a customer

@@ -118,6 +118,36 @@ const getAllEventOrdersOfCustomer = async (req, res, next) => {
     }
 }
 
+const getAllEventOrders = async (req,res, next) => {
+    try {
+        const [eventOrders] = await db.query("SELECT * FROM event_order");
+
+        // for each event order we have to populate event items
+        for(let i = 0; i < eventOrders.length; i++) {
+            const order = eventOrders[i]; // current order
+            const [items] = await db.query("SELECT orderId, eventId, totalPeople, price, totalPrice, (SELECT name FROM event WHERE id=eventId) AS name, (SELECT type FROM event WHERE id=eventId) AS type, (SELECT image FROM event WHERE id=eventId) AS image FROM event_order_item WHERE orderId=?", [+order.id]);
+        
+            // add those items into each event order
+            eventOrders[i].items = items;
+        }
+
+        if(req.user.role === 'Admin' || req.user.role === 'Employee') {
+            // populate customer details
+            for(let i = 0; i < eventOrders.length; i++) {
+                const order = eventOrders[i]; // current order
+                const [customer] = await db.query("SELECT id, username, email, firstName, lastName, avatar, phone FROM customer WHERE id=?", [+order.customerId]);
+            
+                // add those items into each event order
+                eventOrders[i].customerDetails = customer[0];
+            }
+        }
+
+        res.status(200).json({message: 'success', orders: eventOrders});
+    } catch (err) {
+        
+    }
+}
+
 module.exports = {
     createNewEvent,
     getAllEvents,
@@ -127,5 +157,6 @@ module.exports = {
     getOverallEventsData,
 
     createEventOrder,
-    getAllEventOrdersOfCustomer
+    getAllEventOrdersOfCustomer,
+    getAllEventOrders
 }
