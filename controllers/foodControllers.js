@@ -222,6 +222,32 @@ const createNewOrder = async (req, res, next) => {
     }
 }
 
+const getAllOrdersOfACustomer = async (req, res, next) => {
+    const customerId = req.params.customerId;
+
+    try {
+        const [result] = await db.query("SELECT * FROM food_order WHERE customerId=?", [customerId]);
+
+        console.log(result);
+
+        res.status(200).json({message: 'Success', orders: result});
+
+    } catch (err) {
+        next(err);
+    }
+}
+
+const getAllFoodOrders = async (req, res, next) => {
+
+    try {
+        const [result] = await db.query("SELECT * FROM food_order");
+
+        res.status(200).json({message: 'Success', orders: result});
+    } catch (err) {
+        next(err);
+    }
+}
+
 const getPopularCategories = async (req, res, next) => {
 
     try {
@@ -245,6 +271,8 @@ module.exports = {
 
     updateSingleMeal, // add new meal to a menu or remove a meal from a menu
     createNewOrder,
+    getAllOrdersOfACustomer,
+    getAllFoodOrders,
 
     getPopularCategories
 }

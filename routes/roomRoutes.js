@@ -30,11 +30,18 @@ router.route('/:id')
 router.route('/bookings/available-rooms')
     .get(roomControllers.getAvailableRoomsForBooking)
 
+router.route('/bookings/all')
+    .get(isEmployee, roomControllers.getAllBookings) // get all bookings (Admin, Employee)
+    
+
 router.route('/bookings/:id')
     .get(roomControllers.getSingleBooking) // get details about single booking
+    .put(roomControllers.updateBookingPaymentStatus) // update booking payment status
 
 router.route('/bookings/customer/:id')
     .get(roomControllers.getAllBookingsOfACustomer) // get all the bookings of a customer
+
+
 
 
 

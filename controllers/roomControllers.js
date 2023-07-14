@@ -183,6 +183,21 @@ const createNewBooking = async (req, res, next) => {
     }
 }
 
+// @desc get all bookings of a customer
+// @route GET /api/rooms/bookings/customer/:id
+// @access protected (Customer, Employee, Admin)
+
+const getAllBookings = async (req, res, next) => {
+
+    try {
+        const [result] = await db.query("SELECT * FROM booking"); 
+
+        res.status(200).json({message: 'Success', bookings: result});
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 // @desc get all bookings of a customer
 // @route GET /api/rooms/bookings/customer/:id
@@ -228,12 +243,49 @@ const getSingleBooking = async (req, res, next) => {
             bookedRoomType: roomTypeDetails[0]
         }
 
+        if(req.user.role === 'Admin' || req.user.role === 'Employee') {
+            const q1 = result[0].customerRole === 'Customer' ? "SELECT * FROM customer WHERE id=?" : "SELECT * FROM employee WHERE id=? ";
+
+            const [customerData] = await db.query(q1, [result[0].customerId]);
+            booking.customerDetails = customerData[0];
+        }
+
         res.status(200).json({message: 'Success', booking});
 
     } catch (err) {
         next(err);
     }
 }
+
+
+const updateBookingPaymentStatus = async (req, res, next) => {
+    const bookingId = req.params.id;
+    console.log(bookingId, req.body.amount);
+    try {
+        const q1 = "UPDATE booking SET isPaid=?, totalPaidPrice=?, remainBalance=? WHERE id=?";
+
+        await db.query(q1, ['yes',+req.body.amount,0,+bookingId]);
+
+        const [result] = await db.query("SELECT * FROM booking WHERE id = ?", [+bookingId]);
+
+        const [rooms] = await db.query("SELECT roomTypeId, roomNo FROM booking_room WHERE bookingId = ?", [+bookingId]);
+
+        const [roomTypeDetails] = await db.query("SELECT id, name FROM room_type WHERE id = ?", [+rooms[0].roomTypeId]);
+
+        const booking = {
+            ...result[0],
+            bookedRooms: rooms,
+            bookedRoomType: roomTypeDetails[0]
+        }
+
+        res.status(201).json({message: 'success', booking});
+        // res.status(201).json({message: 'success'});
+
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 const getMonthlyBookingsReport = async (req, res, next) => {
     try {
@@ -293,6 +345,9 @@ module.exports = {
     createNewBooking,
     getAllBookingsOfACustomer,
     getSingleBooking,
+    getAllBookings,
+    updateBookingPaymentStatus,
 
-    getMonthlyBookingsReport
+    getMonthlyBookingsReport,
+    
 }

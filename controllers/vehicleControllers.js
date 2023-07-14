@@ -271,7 +271,8 @@ const getSingleRental = async (req, res, next) => {
 
         if(req.user.role !== 'Customer') {
             // populate customer data
-            const [customer] = await db.query("SELECT id, username, firstName, lastName, avatar, phone, email FROM customer WHERE id=?", [result[0].customerId]);
+            const q3 = result[0].customerRole === 'Employee' ? "SELECT id, username, firstName, lastName, avatar, phone, email FROM employee WHERE id=?" : "SELECT id, username, firstName, lastName, avatar, phone, email FROM customer WHERE id=?";
+            const [customer] = await db.query(q3, [result[0].customerId]);
             rental.customerData = customer[0];
         }
 
